@@ -6,7 +6,7 @@ clear
 close all
 clc
 
-% landmark definitions and other givens
+% landmark definitions and other intializations
 landmarks = [25 25;
     25 70;
     70 25;
@@ -14,6 +14,9 @@ landmarks = [25 25;
     10 40;
     80 60];
 particles = zeros(1000, 3);
+weights = zeros(1000,1);
+pstar = zeros(6,1000);
+norm_w = zeros(1000,1);
 
 % robot initial pose and store the initial pose
 x = 30 + rand()*40;
@@ -33,6 +36,8 @@ for i=1:1000
     particles(i,3) = theta_p;
 end
 
+particles0 = particles; % save initial particle layout
+
 % robot movement and adding noise to the particles
 for j = 1:10
     n_t = sqrt(0.5)*randn;
@@ -51,6 +56,22 @@ for j = 1:10
     %find the robot's distance to the landmarks
     lm_dist = sqrt((x - landmarks(:,1)).^2 + (y-landmarks(:,2)).^2);
     lm_meas = lm_dist + sqrt(8)*randn(6,1);
+
+    % find the weights
+    for p = 1:1000
+        dist_i = sqrt((particles(p,1)-landmarks(:,1)).^2+(particles(p,2)-landmarks(:,2)).^2);
+        pstar(:,p) = (1/sqrt(2*pi*8))*exp(-0.5*((dist_i-lm_meas).^2)/8);
+    end
+    weights = prod(pstar, 1)';
+    index = randi(1000);
+    beta = 0;
+    wmax = max(weights);
+    new_particles = zeros(1000,3);
+    for i = 1:1000
+        beta = beta + rand()*2*wmax;
+        while weights(index) < beta
+            beta = beta - weights(index);
+            index = mod(index, 1000) + 1;
 end
 
 hold on
