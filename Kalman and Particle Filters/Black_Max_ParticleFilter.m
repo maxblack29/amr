@@ -41,10 +41,16 @@ for j = 1:10
     dist = 1 + n_dist;
     x = x + dist*cos(theta);
     y = y + dist*sin(theta);
+
+    % update the particles with noise
     particles(:,3) = particles(:,3) + 0.2 + sqrt(0.5)*randn(1000, 1);
     dist_p = 1 + sqrt(0.5)*randn(1000,1);
     particles(:,1) = particles(:,1) + dist_p.*cos(particles(:,3));
     particles(:,2) = particles(:,2) + dist_p.*sin(particles(:,3));
+
+    %find the robot's distance to the landmarks
+    lm_dist = sqrt((x - landmarks(:,1)).^2 + (y-landmarks(:,2)).^2);
+    lm_meas = lm_dist + sqrt(8)*randn(6,1);
 end
 
 hold on
