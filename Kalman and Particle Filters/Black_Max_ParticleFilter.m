@@ -14,13 +14,14 @@ landmarks = [25 25;
     10 40;
     80 60];
 particles = zeros(1000, 3);
-err = 8*randn;
-noise = 0.5*randn;
 
-% robot initial pose
+% robot initial pose and store the initial pose
 x = 30 + rand()*40;
+x0 = x;
 y = 30 + rand()*40;
+y0 = y;
 theta = rand()*2*pi;
+theta0 = theta;
 
 % generate and store the random particles
 for i=1:1000
@@ -30,6 +31,20 @@ for i=1:1000
     particles(i,1) = x_p;
     particles(i,2) = y_p;
     particles(i,3) = theta_p;
+end
+
+% robot movement and adding noise to the particles
+for j = 1:10
+    n_t = sqrt(0.5)*randn;
+    n_dist = sqrt(0.5)*randn;
+    theta = theta + 0.2 + n_t;
+    dist = 1 + n_dist;
+    x = x + dist*cos(theta);
+    y = y + dist*sin(theta);
+    particles(:,3) = particles(:,3) + 0.2 + sqrt(0.5)*randn(1000, 1);
+    dist_p = 1 + sqrt(0.5)*randn(1000,1);
+    particles(:,1) = particles(:,1) + dist_p.*cos(particles(:,3));
+    particles(:,2) = particles(:,2) + dist_p.*sin(particles(:,3));
 end
 
 hold on
